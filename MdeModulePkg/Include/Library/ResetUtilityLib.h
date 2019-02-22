@@ -16,6 +16,28 @@
 #ifndef _RESET_UTILITY_LIB_H_
 #define _RESET_UTILITY_LIB_H_
 
+#include <Uefi/UefiMultiPhase.h>
+
+/**
+  This is a shorthand helper function to reset with a subtype so that
+  the caller doesn't have to bother with a function that has half a dozen
+  parameters.
+
+  This will generate a reset with status EFI_SUCCESS, a NULL string, and
+  no custom data. The subtype will be formatted in such a way that it can be
+  picked up by notification registrations and custom handlers.
+
+  @param[in]  ResetType     The default EFI_RESET_TYPE of the reset.
+  @param[in]  ResetSubtype  GUID pointer for the reset subtype to be used.
+
+**/
+VOID
+EFIAPI
+ResetSystemWithSubtype (
+  IN EFI_RESET_TYPE     ResetType,
+  IN CONST  GUID        *ResetSubtype
+  );
+
 /**
   This is a shorthand helper function to reset with a subtype so that
   the caller doesn't have to bother with a function that has half a dozen
