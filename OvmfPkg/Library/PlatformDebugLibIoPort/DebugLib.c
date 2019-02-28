@@ -2,7 +2,7 @@
   Base Debug library instance for QEMU debug port.
   It uses PrintLib to send debug messages to a fixed I/O port.
 
-  Copyright (c) 2006 - 2015, Intel Corporation. All rights reserved.<BR>
+  Copyright (c) 2006 - 2019, Intel Corporation. All rights reserved.<BR>
   Copyright (c) 2012, Red Hat, Inc.<BR>
   This program and the accompanying materials
   are licensed and made available under the terms and conditions of the BSD License
@@ -52,8 +52,40 @@ DebugPrint (
   ...
   )
 {
+  VA_LIST         Marker;
+
+  ASSERT(Format != NULL);
+
+  VA_START(Marker, Format);
+  DebugVPrint(ErrorLevel, Format, Marker);
+  VA_END(Marker);
+}
+
+/**
+  Prints a debug message to the debug output device if the specified error level is enabled.
+
+  If any bit in ErrorLevel is also set in DebugPrintErrorLevelLib function
+  GetDebugPrintErrorLevel (), then print the message specified by Format and the
+  associated variable argument list to the debug output device.
+
+  If Format is NULL, then ASSERT().
+  If the length of the message string specificed by Format is larger than the maximum allowable
+  record length, then directly return and not print it.
+
+  @param  ErrorLevel    The error level of the debug message.
+  @param  Format        Format string for the debug message to print.
+  @param  VaListMarker  VA_LIST marker for the variable argument list.
+
+**/
+VOID
+EFIAPI
+DebugVPrint (
+  IN  UINTN        ErrorLevel,
+  IN  CONST CHAR8  *Format,
+  IN  VA_LIST       VaListMarker
+  )
+{
   CHAR8    Buffer[MAX_DEBUG_MESSAGE_LENGTH];
-  VA_LIST  Marker;
   UINTN    Length;
 
   //
@@ -72,16 +104,13 @@ DebugPrint (
   //
   // Convert the DEBUG() message to an ASCII String
   //
-  VA_START (Marker, Format);
-  Length = AsciiVSPrint (Buffer, sizeof (Buffer), Format, Marker);
-  VA_END (Marker);
+  Length = AsciiVSPrint (Buffer, sizeof (Buffer), Format, VaListMarker);
 
   //
   // Send the print string to the debug I/O port
   //
   IoWriteFifo8 (PcdGet16 (PcdDebugIoPort), Length, Buffer);
 }
-
 
 /**
   Prints an assert message containing a filename, line number, and description.
