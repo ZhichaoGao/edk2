@@ -84,6 +84,7 @@
   gFmpDevicePkgTokenSpaceGuid.PcdFmpDevicePkcs7CertBufferXdr               ## CONSUMES
   gFmpDevicePkgTokenSpaceGuid.PcdFmpDeviceTestKeySha256Digest              ## CONSUMES
   gEfiMdeModulePkgTokenSpaceGuid.PcdTestKeyUsed                            ## SOMETIMES_PRODUCES
+  gFmpDevicePkgTokenSpaceGuid.PcdFmpDeviceImageDefaultTypeIdGuid           ## SOMETIMES_CONSUMES
 
 [Depex]
   gEfiVariableWriteArchProtocolGuid AND gEdkiiVariableLockProtocolGuid

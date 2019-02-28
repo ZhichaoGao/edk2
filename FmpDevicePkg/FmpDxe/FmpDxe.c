@@ -152,7 +152,10 @@ FmpDxeProgress (
 /**
   Returns a pointer to the ImageTypeId GUID value.  An attempt is made to get
   the GUID value from the FmpDeviceLib. If the FmpDeviceLib does not provide
-  a GUID value, then gEfiCallerIdGuid is returned.
+  a GUID value, then PcdFmpDeviceImageDefaultTypeIdGuid is returned.
+
+  If the PcdFmpDeviceImageDefaultTypeIdGuid is not initialize as a EFI_GUID,
+  then ASSERT().
 
   @return  The ImageTypeId GUID
 
@@ -167,16 +170,23 @@ GetImageTypeIdGuid (
 
   FmpDeviceLibGuid = NULL;
   Status = FmpDeviceGetImageTypeIdGuidPtr (&FmpDeviceLibGuid);
-  if (EFI_ERROR (Status)) {
+
+  if (EFI_ERROR(Status) || FmpDeviceLibGuid == NULL) {
     if (Status != EFI_UNSUPPORTED) {
       DEBUG ((DEBUG_ERROR, "FmpDxe: FmpDeviceLib GetImageTypeIdGuidPtr() returned invalid error %r\n", Status));
     }
-    return &gEfiCallerIdGuid;
+    if (FmpDeviceLibGuid == NULL) {
+      DEBUG ((DEBUG_ERROR, "FmpDxe: FmpDeviceLib GetImageTypeIdGuidPtr() returned invalid GUID\n"));
+    }
+    if (PcdGetSize (PcdFmpDeviceImageDefaultTypeIdGuid) == sizeof(EFI_GUID)) {
+      FmpDeviceLibGuid = (EFI_GUID *)PcdGetPtr (PcdFmpDeviceImageDefaultTypeIdGuid);
+    } else {
+      DEBUG ((DEBUG_ERROR, "FmpDxe %s: FmpDeviceLib did not return a GUID and PcdFmpDeviceImageDefaultTypeIdGuid is undefined\n", mImageIdName));
+      ASSERT (FALSE);
+      FmpDeviceLibGuid = &gEfiCallerIdGuid;
+    }
   }
-  if (FmpDeviceLibGuid == NULL) {
-    DEBUG ((DEBUG_ERROR, "FmpDxe: FmpDeviceLib GetImageTypeIdGuidPtr() returned invalid GUID\n"));
-    return &gEfiCallerIdGuid;
-  }
+
   return FmpDeviceLibGuid;
 }
 
