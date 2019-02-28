@@ -1,7 +1,7 @@
 /** @file
   Null Base Debug Library instance with empty functions.
 
-  Copyright (c) 2006 - 2018, Intel Corporation. All rights reserved.<BR>
+  Copyright (c) 2006 - 2019, Intel Corporation. All rights reserved.<BR>
   This program and the accompanying materials
   are licensed and made available under the terms and conditions of the BSD License
   which accompanies this distribution.  The full text of the license may be found at
@@ -40,6 +40,31 @@ DebugPrint (
 {
 }
 
+/**
+  Prints a debug message to the debug output device if the specified error level is enabled.
+
+  If any bit in ErrorLevel is also set in DebugPrintErrorLevelLib function
+  GetDebugPrintErrorLevel (), then print the message specified by Format and the
+  associated variable argument list to the debug output device.
+
+  If Format is NULL, then ASSERT().
+  If the length of the message string specificed by Format is larger than the maximum allowable
+  record length, then directly return and not print it.
+
+  @param  ErrorLevel    The error level of the debug message.
+  @param  Format        Format string for the debug message to print.
+  @param  VaListMarker  VA_LIST marker for the variable argument list.
+
+**/
+VOID
+EFIAPI
+DebugVPrint (
+  IN  UINTN        ErrorLevel,
+  IN  CONST CHAR8  *Format,
+  IN  VA_LIST       VaListMarker
+  )
+{
+}
 
 /**
   Prints an assert message containing a filename, line number, and description.
