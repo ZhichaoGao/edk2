@@ -348,6 +348,11 @@
   ##
   Nt32Pkg/Sec/SecMain.inf
 
+  TestPkg/CryptFunction/CryptFunction.inf {
+    <LibraryClasses>
+      ShellLib|ShellPkg/Library/UefiShellLib/UefiShellLib.inf
+      FileHandleLib|MdePkg/Library/UefiFileHandleLib/UefiFileHandleLib.inf
+  }
   ##
   #  PEI Phase modules
   ##

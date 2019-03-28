@@ -1,0 +1,48 @@
+##  @file simple test for new apis in BaseCryptLib
+#
+#  Copyright (c) 2019, Intel Corporation. All rights reserved.<BR>
+#
+#  This program and the accompanying materials
+#  are licensed and made available under the terms and conditions of the BSD License
+#  which accompanies this distribution.  The full text of the license may be found at
+#  http://opensource.org/licenses/bsd-license.php
+#
+#  THE PROGRAM IS DISTRIBUTED UNDER THE BSD LICENSE ON AN "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
+#
+#
+##
+
+[Defines]
+  INF_VERSION               = 0x00010006
+  BASE_NAME                 = CryptFunction
+  FILE_GUID                 = 75CCDD43-5188-48F5-BD7E-8C3F5F68B283
+  MODULE_TYPE               = UEFI_APPLICATION
+  VERSION_STRING            = 1.0
+  ENTRY_POINT               = UefiMain
+
+[Sources]
+  CryptFunction.c
+
+[Packages]
+  MdePkg/MdePkg.dec
+  MdeModulePkg/MdeModulePkg.dec
+  CryptoPkg/CryptoPkg.dec
+  ShellPkg/ShellPkg.dec
+
+[LibraryClasses]
+  BaseLib
+  UefiApplicationEntryPoint
+  DebugLib
+  MemoryAllocationLib
+  UefiBootServicesTableLib
+  UefiLib
+  PrintLib
+  BaseCryptLib
+  ShellLib
+
+[Protocols]
+
+[Depex]
+  TRUE
+
