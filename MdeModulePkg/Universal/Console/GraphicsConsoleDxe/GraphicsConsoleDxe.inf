@@ -49,6 +49,9 @@
   HiiLib
   PcdLib
 
+[Guids]
+  gEfiEventReadyToBootGuid                      ## CONSUMES
+
 [Protocols]
   gEfiDevicePathProtocolGuid                    ## TO_START
   gEfiSimpleTextOutProtocolGuid                 ## BY_START

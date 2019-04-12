@@ -1,7 +1,7 @@
 /** @file
   This is the main routine for initializing the Graphics Console support routines.
 
-Copyright (c) 2006 - 2018, Intel Corporation. All rights reserved.<BR>
+Copyright (c) 2006 - 2019, Intel Corporation. All rights reserved.<BR>
 SPDX-License-Identifier: BSD-2-Clause-Patent
 
 **/
@@ -95,6 +95,12 @@ EFI_DRIVER_BINDING_PROTOCOL gGraphicsConsoleDriverBinding = {
   NULL,
   NULL
 };
+
+//
+// Event and variable to indicate the boot phase.
+//
+EFI_EVENT   mGraphicsConsoleReadyToBootEvent;
+BOOLEAN     mGraphicsConsoleReadyToBoot       = FALSE;
 
 /**
   Test to see if Graphics Console could be supported on the Controller.
@@ -567,16 +573,7 @@ GraphicsConsoleControllerDriverStart (
   //
   Private->SimpleTextOutputMode.MaxMode = (INT32) MaxMode;
 
-  DEBUG_CODE_BEGIN ();
-    Status = GraphicsConsoleConOutSetMode (&Private->SimpleTextOutput, 0);
-    if (EFI_ERROR (Status)) {
-      goto Error;
-    }
-    Status = GraphicsConsoleConOutOutputString (&Private->SimpleTextOutput, (CHAR16 *)L"Graphics Console Started\n\r");
-    if (EFI_ERROR (Status)) {
-      goto Error;
-    }
-  DEBUG_CODE_END ();
+  DEBUG ((DEBUG_INFO, "Graphics Console Started!\n\r"));
 
   //
   // Install protocol interfaces for the Graphics Console device.
@@ -1366,18 +1363,26 @@ GraphicsConsoleConOutSetMode (
       //
       // The current graphics mode is correct, so simply clear the entire display
       //
-      Status = GraphicsOutput->Blt (
-                          GraphicsOutput,
-                          &mGraphicsEfiColors[0],
-                          EfiBltVideoFill,
-                          0,
-                          0,
-                          0,
-                          0,
-                          ModeData->GopWidth,
-                          ModeData->GopHeight,
-                          0
-                          );
+      //
+      // For the first time boot system, do not clear the display.
+      // Some platforms would show logo at PEIM and this would clear
+      // the whole screen. So for first boot set mode, do not clear
+      // the screen.
+      //
+      if (This->Mode->Mode != -1 || mGraphicsConsoleReadyToBoot) {
+        Status = GraphicsOutput->Blt (
+                            GraphicsOutput,
+                            &mGraphicsEfiColors[0],
+                            EfiBltVideoFill,
+                            0,
+                            0,
+                            0,
+                            0,
+                            ModeData->GopWidth,
+                            ModeData->GopHeight,
+                            0
+                            );
+      }
     }
   } else if (FeaturePcdGet (PcdUgaConsumeSupport)) {
     //
@@ -2066,6 +2071,24 @@ RegisterFontPackage (
 }
 
 /**
+  Indicate the Boot phase is at ReadyToBoot.
+
+  @param[in]  Event   The Event that is being processed.
+  @param[in]  Context The Event Context.
+
+**/
+VOID
+GraphicsConsoleReadyToBootEvent (
+  IN EFI_EVENT        Event,
+  IN VOID             *Context
+  )
+{
+  mGraphicsConsoleReadyToBoot = TRUE;
+
+  gBS->CloseEvent (mGraphicsConsoleReadyToBootEvent);
+}
+
+/**
   The user Entry Point for module GraphicsConsole. The user code starts with this function.
 
   @param[in] ImageHandle    The firmware allocated handle for the EFI image.
@@ -2094,6 +2117,19 @@ InitializeGraphicsConsole (
     NULL,
     &mHiiRegistration
     );
+
+  //
+  // Create a event function of ReadyToBoot to avoid clearing screen before boot
+  //
+  Status = gBS->CreateEventEx (
+                  EVT_NOTIFY_SIGNAL,
+                  TPL_NOTIFY,
+                  GraphicsConsoleReadyToBootEvent,
+                  NULL,
+                  &gEfiEventReadyToBootGuid,
+                  &mGraphicsConsoleReadyToBootEvent
+                  );
+  ASSERT_EFI_ERROR (Status);
 
   //
   // Install driver model protocol(s).
