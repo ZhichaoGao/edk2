@@ -156,7 +156,7 @@ TestVerifyEKUsWith1CertInSignature (
   
   This signature has two EKU's in it:
   "1.3.6.1.4.1.311.76.9.21.1"
-  "1.3.6.1.4.1.311.76.9.21.2"
+  "1.3.6.1.4.1.311.76.9.21.1.2"
   We verify that both EKU's were present in the leaf signer.
 
   @param[in]  Framework - Unit-test framework handle.
@@ -175,7 +175,7 @@ TestVerifyEKUsWithMultipleEKUsInCert (
   EFI_STATUS       Status     = EFI_SUCCESS;
 
   CONST CHAR8* RequiredEKUs[] = { "1.3.6.1.4.1.311.76.9.21.1",
-                                  "1.3.6.1.4.1.311.76.9.21.2" };
+                                  "1.3.6.1.4.1.311.76.9.21.1.2" };
 
   Status = VerifyEKUsInPkcs7Signature(TestSignedWithMultipleEKUsInCert,
                                       ARRAY_SIZE(TestSignedWithMultipleEKUsInCert),
