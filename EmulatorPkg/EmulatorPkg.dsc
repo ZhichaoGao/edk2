@@ -404,6 +404,7 @@
   }
 
 !endif
+  SimpleTestPkg/Application/TestMain/TestMain.inf
 
 !include NetworkPkg/Network.dsc.inc
 

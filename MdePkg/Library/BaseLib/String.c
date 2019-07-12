@@ -1882,6 +1882,20 @@ Base64Encode (
   return RETURN_SUCCESS;
 }
 
+// for test only
+#define TEST_ADDITION_LINE 14   // line 1185 to line 1898
+#ifndef T_RETURN_INVALID_PARAMETER
+#define T_RETURN_INVALID_PARAMETER {DEBUG ((EFI_D_ERROR, "Ivalidate: %a, %d\n", __FILE__, __LINE__ - TEST_ADDITION_LINE)); return RETURN_INVALID_PARAMETER;}
+#endif
+
+#ifndef T_RETURN_BUFFER_TOO_SMALL
+#define T_RETURN_BUFFER_TOO_SMALL {DEBUG ((EFI_D_ERROR, "Too Small: %a, %d\n", __FILE__, __LINE__ - TEST_ADDITION_LINE)); return RETURN_BUFFER_TOO_SMALL;}
+#endif
+
+#ifndef T_RETURN_SUCCESS
+#define T_RETURN_SUCCESS {DEBUG ((EFI_D_ERROR, "Success: %a, %d\n", __FILE__, __LINE__ - TEST_ADDITION_LINE)); return RETURN_SUCCESS;}
+#endif
+
 /**
   Decode Base64 ASCII encoded data to 8-bit binary representation, based on
   RFC4648.
@@ -1980,7 +1994,7 @@ Base64Decode (
   UINTN   SourceIndex;
 
   if (DestinationSize == NULL) {
-    return RETURN_INVALID_PARAMETER;
+    T_RETURN_INVALID_PARAMETER;//return RETURN_INVALID_PARAMETER;
   }
 
   //
@@ -1991,13 +2005,13 @@ Base64Decode (
       //
       // At least one CHAR8 element at NULL Source.
       //
-      return RETURN_INVALID_PARAMETER;
+      T_RETURN_INVALID_PARAMETER;//return RETURN_INVALID_PARAMETER;
     }
   } else if (SourceSize > MAX_ADDRESS - (UINTN)Source) {
     //
     // Non-NULL Source, but it wraps around.
     //
-    return RETURN_INVALID_PARAMETER;
+    T_RETURN_INVALID_PARAMETER;//return RETURN_INVALID_PARAMETER;
   }
 
   //
@@ -2008,13 +2022,13 @@ Base64Decode (
       //
       // At least one UINT8 element at NULL Destination.
       //
-      return RETURN_INVALID_PARAMETER;
+      T_RETURN_INVALID_PARAMETER;//return RETURN_INVALID_PARAMETER;
     }
   } else if (*DestinationSize > MAX_ADDRESS - (UINTN)Destination) {
     //
     // Non-NULL Destination, but it wraps around.
     //
-    return RETURN_INVALID_PARAMETER;
+    T_RETURN_INVALID_PARAMETER;//return RETURN_INVALID_PARAMETER;
   }
 
   //
@@ -2037,7 +2051,7 @@ Base64Decode (
       //
       // Overlap.
       //
-      return RETURN_INVALID_PARAMETER;
+      T_RETURN_INVALID_PARAMETER;//return RETURN_INVALID_PARAMETER;
     }
   }
 
@@ -2082,7 +2096,7 @@ Base64Decode (
         SixBitGroupsConsumed = 0;
         continue;
       }
-      return RETURN_INVALID_PARAMETER;
+      T_RETURN_INVALID_PARAMETER;//return RETURN_INVALID_PARAMETER;
     }
 
     //
@@ -2126,7 +2140,7 @@ Base64Decode (
         // Padding characters are not allowed at the first two positions of a
         // quantum.
         //
-        return RETURN_INVALID_PARAMETER;
+        T_RETURN_INVALID_PARAMETER;//return RETURN_INVALID_PARAMETER;
       }
 
       //
@@ -2136,7 +2150,7 @@ Base64Decode (
       // Chapter 3.5. "Canonical Encoding".
       //
       if (Accumulator != 0) {
-        return RETURN_INVALID_PARAMETER;
+        T_RETURN_INVALID_PARAMETER;//return RETURN_INVALID_PARAMETER;
       }
 
       //
@@ -2147,7 +2161,7 @@ Base64Decode (
       //
       // Other characters outside of the encoding alphabet are rejected.
       //
-      return RETURN_INVALID_PARAMETER;
+      T_RETURN_INVALID_PARAMETER;//return RETURN_INVALID_PARAMETER;
     }
 
     //
@@ -2210,16 +2224,16 @@ Base64Decode (
   // If Source terminates mid-quantum, then Source is invalid.
   //
   if (SixBitGroupsConsumed != 0) {
-    return RETURN_INVALID_PARAMETER;
+    T_RETURN_INVALID_PARAMETER;//return RETURN_INVALID_PARAMETER;
   }
 
   //
   // Done.
   //
   if (*DestinationSize <= OriginalDestinationSize) {
-    return RETURN_SUCCESS;
+    T_RETURN_SUCCESS;//return RETURN_SUCCESS;
   }
-  return RETURN_BUFFER_TOO_SMALL;
+  T_RETURN_BUFFER_TOO_SMALL;//return RETURN_BUFFER_TOO_SMALL;
 }
 
 /**
