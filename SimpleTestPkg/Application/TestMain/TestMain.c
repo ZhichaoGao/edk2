@@ -343,7 +343,11 @@ TestBase64 (
   DecodeData = (UINT8 *)AllocateZeroPool (DestDataSize);
   Status = Base64Decode (DestData, DestDataSize, DecodeData, &DecodeDataSize);
   if (Status == EFI_INVALID_PARAMETER) {
+<<<<<<< HEAD
     Print (L"DestData == \'AB=C\', SourceDataSize == 4, return EFI_INVALID_PARAMETER, expect!\n");
+=======
+    Print (L"DestData == \'AQ=C\', SourceDataSize == 4, return EFI_INVALID_PARAMETER, expect!\n");
+>>>>>>> Add testcase for Base64 Decode.
   }
 
   // '=' Should be at the end
@@ -359,7 +363,11 @@ TestBase64 (
   DecodeData = (UINT8 *)AllocateZeroPool (DestDataSize);
   Status = Base64Decode (DestData, DestDataSize, DecodeData, &DecodeDataSize);
   if (Status == EFI_INVALID_PARAMETER) {
+<<<<<<< HEAD
     Print (L"DestData == \'AB===\', SourceDataSize == 4, return EFI_INVALID_PARAMETER, expect!\n");
+=======
+    Print (L"DestData == \'AQ===\', SourceDataSize == 4, return EFI_INVALID_PARAMETER, expect!\n");
+>>>>>>> Add testcase for Base64 Decode.
   }
 
   // max number of '=' is two
@@ -417,7 +425,11 @@ TestBase64 (
   DecodeData = (UINT8 *)AllocateZeroPool (DestDataSize);
   Status = Base64Decode (DestData, DestDataSize, DecodeData, &DecodeDataSize);
   if (Status == EFI_INVALID_PARAMETER) {
+<<<<<<< HEAD
     Print (L"DestData == \'AB=\', SourceDataSize == 3, return EFI_INVALID_PARAMETER, expect!\n");
+=======
+    Print (L"DestData == \'Ag=\', SourceDataSize == 3, return EFI_INVALID_PARAMETER, expect!\n");
+>>>>>>> Add testcase for Base64 Decode.
   }
 
   // ignore whitespace
