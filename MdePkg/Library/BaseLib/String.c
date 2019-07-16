@@ -1992,6 +1992,9 @@ Base64Decode (
   UINT32  Accumulator;
   UINTN   OriginalDestinationSize;
   UINTN   SourceIndex;
+  CHAR8   SourceChar;
+  UINT32  Base64Value;
+  UINT8   DestinationOctet;
 
   if (DestinationSize == NULL) {
     T_RETURN_INVALID_PARAMETER;//return RETURN_INVALID_PARAMETER;
@@ -2068,10 +2071,6 @@ Base64Decode (
   // Decoding loop.
   //
   for (SourceIndex = 0; SourceIndex < SourceSize; SourceIndex++) {
-    CHAR8  SourceChar;
-    UINT32 Base64Value;
-    UINT8  DestinationOctet;
-
     SourceChar = Source[SourceIndex];
 
     //
