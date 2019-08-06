@@ -64,17 +64,10 @@ STATIC CONST ACPI_PARSER Dbg2Parser[] = {
    (VOID**)&NumberDbgDeviceInfo, NULL, NULL}
 };
 
-/// An ACPI_PARSER array describing the debug device information structure
-/// header.
-STATIC CONST ACPI_PARSER DbgDevInfoHeaderParser[] = {
-  {L"Revision", 1, 0, L"0x%x", NULL, NULL, NULL, NULL},
-  {L"Length", 2, 1, L"%d", NULL, (VOID**)&DbgDevInfoLen, NULL, NULL}
-};
-
 /// An ACPI_PARSER array describing the debug device information.
 STATIC CONST ACPI_PARSER DbgDevInfoParser[] = {
   {L"Revision", 1, 0, L"0x%x", NULL, NULL, NULL, NULL},
-  {L"Length", 2, 1, L"%d", NULL, NULL, NULL, NULL},
+  {L"Length", 2, 1, L"%d", NULL, (VOID**)&DbgDevInfoLen, NULL, NULL},
 
   {L"Generic Address Registers Count", 1, 3, L"0x%x", NULL,
    (VOID**)&GasCount, NULL, NULL},
@@ -100,28 +93,39 @@ STATIC CONST ACPI_PARSER DbgDevInfoParser[] = {
 /**
   This function parses the debug device information structure.
 
-  @param [in] Ptr     Pointer to the start of the buffer.
-  @param [in] Length  Length of the debug device information structure.
+  @param [in]   Ptr             Pointer to the start of the buffer.
+  @param [in]   Length          The remain length of the acpi table. i.e. AcpiLength - (Ptr - AcpiHeaderPtr).
+  @param [out]  DbgDevInfoLen   Return the successful parsed Debug Device Information length.
 **/
 STATIC
 VOID
 EFIAPI
 DumpDbgDeviceInfo (
-  IN UINT8* Ptr,
-  IN UINT16 Length
+  IN UINT8*   Ptr,
+  IN UINT32   Length,
+  OUT UINT16* DbgDevInfoLength
   )
 {
   UINT16  Index;
   UINT16  Offset;
+  UINT32  ParsedOffset;
 
-  ParseAcpi (
-    TRUE,
-    2,
-    "Debug Device Info",
-    Ptr,
-    Length,
-    PARSER_PARAMS (DbgDevInfoParser)
-    );
+  ParsedOffset = ParseAcpi (
+                  TRUE,
+                  2,
+                  "Debug Device Info",
+                  Ptr,
+                  Length,
+                  PARSER_PARAMS (DbgDevInfoParser)
+                  );
+
+  if (DbgDevInfoLength != NULL) {
+    *DbgDevInfoLength = (UINT16)(ParsedOffset == 0 ? 0 : *DbgDevInfoLen);
+  }
+
+  if (ParsedOffset == 0) {
+    return;
+  }
 
   // GAS
   Index = 0;
@@ -210,6 +214,7 @@ ParseAcpiDbg2 (
 {
   UINT32 Offset;
   UINT32 Index;
+  UINT16 DebugDevInfoLen;
 
   if (!Trace) {
     return;
@@ -229,30 +234,22 @@ ParseAcpiDbg2 (
 
   while (Index++ < *NumberDbgDeviceInfo) {
 
-    // Parse the Debug Device Information Structure header to obtain Length
-    ParseAcpi (
-      FALSE,
-      0,
-      NULL,
-      Ptr + Offset,
-      AcpiTableLength - Offset,
-      PARSER_PARAMS (DbgDevInfoHeaderParser)
-      );
-
-    // Make sure the Debug Device Information structure lies inside the table.
-    if ((Offset + *DbgDevInfoLen) > AcpiTableLength) {
+    if (AcpiTableLength < Offset) {
       IncrementErrorCount ();
       Print (
-        L"ERROR: Invalid Debug Device Information structure length. " \
-          L"DbgDevInfoLen = %d. RemainingTableBufferLength = %d. " \
-          L"DBG2 parsing aborted.\n",
-        *DbgDevInfoLen,
-        AcpiTableLength - Offset
+        L"ERROR: Invalid Offset of ACPI DBG2 table. " \
+          L"AcpiTableLength: %d, Offset: %d. " \
+          L"DEB2 parsing aborted.\n",
+        AcpiTableLength,
+        Offset
         );
       return;
     }
 
-    DumpDbgDeviceInfo (Ptr + Offset, (*DbgDevInfoLen));
-    Offset += (*DbgDevInfoLen);
+    DumpDbgDeviceInfo (Ptr + Offset, AcpiTableLength - Offset, &DebugDevInfoLen);
+    if (DebugDevInfoLen == 0) {
+      return;
+    }
+    Offset += DebugDevInfoLen;
   }
 }
